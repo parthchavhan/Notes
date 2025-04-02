@@ -27,11 +27,11 @@ async function getData(userId: string) {
         },
       },
 
-      Subscription: {
-        select: {
-          status: true,
-        },
-      },
+      // Subscription: {
+      //   select: {
+      //     status: true,
+      //   },
+      // },
     },
   });
 
@@ -66,15 +66,15 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {data?.Subscription?.status === "active" ? (
+        {/* {data?.Subscription?.status === "active" ? ( */}
           <Button asChild>
             <Link href="/dashboard/new">Create a new Note</Link>
           </Button>
-        ) : (
+        {/* ) : (
           <Button asChild>
             <Link href="/dashboard/billing">Create a new Note</Link>
           </Button>
-        )}
+        )} */}
       </div>
 
       {data?.Notes.length == 0 ? (
@@ -91,15 +91,15 @@ export default async function DashboardPage() {
             can see them right here.
           </p>
 
-          {data?.Subscription?.status === "active" ? (
+          {/* {data?.Subscription?.status === "active" ? ( */}
             <Button asChild>
               <Link href="/dashboard/new">Create a new Note</Link>
             </Button>
-          ) : (
+          {/* ) : (
             <Button asChild>
               <Link href="/dashboard/billing">Create a new Note</Link>
             </Button>
-          )}
+          )} */}
         </div>
       ) : (
         <div className="flex flex-col gap-y-4">
