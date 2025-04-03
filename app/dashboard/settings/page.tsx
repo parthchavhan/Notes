@@ -29,7 +29,11 @@ export default async function SettingPage() {
     const {getUser} = getKindeServerSession();
     const user = await getUser();
     const data = await getData(user?.id as string);
-
+    if (!user?.id) {
+        // Handle the case where the user is not authenticated or doesn't have an ID
+        // You can redirect them to a login page or show an error
+        return <div>Please log in to access settings.</div>;
+    }
     async function postData(formData: FormData) {
         "use server";
 
