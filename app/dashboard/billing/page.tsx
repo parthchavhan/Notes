@@ -18,26 +18,22 @@ import {
 import { unstable_noStore as noStore } from "next/cache";
 
 const featureItems = [
-  { name: "Lorem Ipsum something" },
-  { name: "Lorem Ipsum something" },
-  { name: "Lorem Ipsum something" },
-  { name: "Lorem Ipsum something" },
-  { name: "Lorem Ipsum something" },
+  { name: "Create unlimited notes" },
+  { name: "Access from any device" },
+  { name: "Real-time synchronization" },
+  { name: "Secure cloud storage" },
+  { name: "Priority support" },
 ];
 
 async function getData(userId: string) {
   noStore();
-  const data = await prisma.subscription.findUnique({
+  const data = await prisma.user.findUnique({
     where: {
-      userId: userId,
+      id: userId,
     },
     select: {
-      status: true,
-      user: {
-        select: {
-          stripeCustomerId: true,
-        },
-      },
+      paymentDone: true,
+      stripeCustomerId: true,
     },
   });
 
@@ -80,7 +76,7 @@ export default async function BillingPage() {
   async function createCustomerPortal() {
     "use server";
     const session = await stripe.billingPortal.sessions.create({
-      customer: data?.user.stripeCustomerId as string,
+      customer: data?.stripeCustomerId as string,
       return_url:
         process.env.NODE_ENV === "production"
           ? (process.env.PRODUCTION_URL as string)
@@ -90,7 +86,7 @@ export default async function BillingPage() {
     return redirect(session.url);
   }
 
-  if (data?.status === "active") {
+  if (data?.paymentDone) {
     return (
       <div className="grid items-start gap-8">
         <div className="flex items-center justify-between px-2">
@@ -132,10 +128,13 @@ export default async function BillingPage() {
           </div>
 
           <div className="mt-4 flex items-baseline text-6xl font-extrabold">
-            $30 <span className="ml-1 text-2xl text-muted-foreground">/mo</span>
+            $50 <span className="ml-1 text-2xl text-muted-foreground">/mo</span>
           </div>
           <p className="mt-5 text-lg text-muted-foreground">
-            Write as many notes as you want for $30 a Month
+            Write as many notes as you want for $50 a Month
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            For testing, use card number: 4242 4242 4242 4242, any future expiry date, and CVV: 424
           </p>
         </CardContent>
         <div className="flex-1 flex flex-col justify-between px-6 pt-6 pb-8 bg-secondary rounded-lg m-1 space-y-6 sm:p-10 sm:pt-6">

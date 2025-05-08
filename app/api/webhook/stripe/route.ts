@@ -4,9 +4,10 @@ import Stripe from "stripe";
 import prisma from "@/app/lib/db";
 
 export async function POST(req: Request) {
+  console.log("Webhook received request");
   const body = await req.text();
-
   const signature = headers().get("Stripe-Signature") as string;
+  console.log("Signature:", signature);
 
   let event: Stripe.Event;
 
@@ -16,55 +17,48 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
+    console.log("Webhook received event:", event.type);
+    console.log("Event data:", JSON.stringify(event.data, null, 2));
   } catch (error: unknown) {
+    console.error("Webhook signature verification failed:", error);
     return new Response("webhook error", { status: 400 });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
 
   if (event.type === "checkout.session.completed") {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
-    );
+    console.log("Processing checkout.session.completed");
+    console.log("Session data:", JSON.stringify(session, null, 2));
+    
     const customerId = String(session.customer);
+    console.log("Customer ID:", customerId);
 
     const user = await prisma.user.findUnique({
       where: {
         stripeCustomerId: customerId,
       },
     });
+    console.log("Found user:", user?.id);
 
-    if (!user) throw new Error("User not found...");
+    if (!user) {
+      console.error("User not found for customer ID:", customerId);
+      throw new Error("User not found...");
+    }
 
-    await prisma.subscription.create({
-      data: {
-        stripeSubscriptionId: subscription.id,
-        userId: user.id,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
-        status: subscription.status,
-        planId: subscription.items.data[0].plan.id,
-        invterval: String(subscription.items.data[0].plan.interval),
-      },
-    });
-  }
-
-  if (event.type === "invoice.payment_succeeded") {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
-    );
-
-    await prisma.subscription.update({
-      where: {
-        stripeSubscriptionId: subscription.id,
-      },
-      data: {
-        planId: subscription.items.data[0].price.id,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
-        status: subscription.status,
-      },
-    });
+    try {
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          paymentDone: true,
+        },
+      });
+      console.log("Updated user paymentDone status:", updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error;
+    }
   }
 
   return new Response(null, { status: 200 });

@@ -26,12 +26,7 @@ async function getData(userId: string) {
           createdAt: "desc",
         },
       },
-
-      Subscription: {
-        select: {
-          status: true,
-        },
-      },
+      paymentDone: true,
     },
   });
 
@@ -66,7 +61,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {data?.Subscription?.status === "active" ? (
+        {data?.paymentDone ? (
           <Button asChild>
             <Link href="/dashboard/new">Create a new Note</Link>
           </Button>
@@ -91,7 +86,7 @@ export default async function DashboardPage() {
             can see them right here.
           </p>
 
-          {data?.Subscription?.status === "active" ? (
+          {data?.paymentDone ? (
             <Button asChild>
               <Link href="/dashboard/new">Create a new Note</Link>
             </Button>
