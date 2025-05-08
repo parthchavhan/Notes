@@ -22,7 +22,7 @@ export default function CancelledRoute() {
 
             <div className="mt-5 sm:mt-6 w-full">
               <Button className="w-full" asChild>
-                <Link href="/">Go back to Dashboard</Link>
+                <Link href="/dashboard/billing/success">Go back to Dashboard</Link>
               </Button>
             </div>
           </div>

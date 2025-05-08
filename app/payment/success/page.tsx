@@ -2,8 +2,24 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import prisma from "@/app/lib/db";
 
-export default function SuccessRoute() {
+export default async function SuccessRoute() {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (user?.id) {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        paymentDone: true,
+      },
+    });
+  }
+
   return (
     <div className="w-full min-h-[80vh] flex items-center justify-center">
       <Card className="w-[350px]">
@@ -25,7 +41,7 @@ export default function SuccessRoute() {
 
             <div className="mt-5 sm:mt-6 w-full">
               <Button className="w-full" asChild>
-                <Link href="/">Go back to Dashboard</Link>
+                <Link href="/dashboard">Go back to Dashboard</Link>
               </Button>
             </div>
           </div>
