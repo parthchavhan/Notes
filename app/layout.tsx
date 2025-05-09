@@ -38,7 +38,9 @@ export default async function RootLayout({
   const user = await getUser();
   const data = await getData(user?.id as string);
   return (
-    <html lang="en">
+    <html lang="en"> <head>
+    <link rel="icon" href="/favicon.ico"/>
+  </head>
       <body
         className={`${inter.className} ${data?.colorScheme ?? "theme-orange"}`}
       >
